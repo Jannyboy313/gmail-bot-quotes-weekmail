@@ -76,6 +76,7 @@ async function retrieveEmailIds(auth) {
   const response = await gmail.users.messages.list({
     userId: "me",
     q: "from:(intern@vslcatena.nl) Wekelijkse Catena Blijheid after:2022/9/5"
+    // q: "from:(intern@vslcatena.nl) Wekelijkse Catena Blijheid after:2022/10/9 before:2022/10/12"
   });
 
   const emails = response.data.messages;
