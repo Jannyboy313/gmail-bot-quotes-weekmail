@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql
+    environment:
+      DATABASE_HOST: 127.0.0.1
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rootpwd
+    ports:
+      - "5432:5432"
+    networks:
+      - db-network
