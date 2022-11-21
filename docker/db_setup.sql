@@ -1,8 +1,9 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE quotes (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    quote TEXT NOT NULL,
     name_id uuid NOT NULL,
+    quote TEXT NOT NULL,
+    receiveDate DATE NOT NULL,
     CONSTRAINT fk_name
         FOREIGN KEY(name_id)
             REFERENCES names(id)
