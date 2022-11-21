@@ -4,6 +4,14 @@ import process from 'process';
 import { authenticate } from '@google-cloud/local-auth';
 import { google } from 'googleapis';
 import { writeFileSync } from 'fs';
+import { Pool } from 'postgresql-client';
+
+const db = new Pool({
+  host: 'postgres://localhost',
+  port: 5432,
+  password: "rootpwd",
+  user: "postgres"
+})
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
@@ -69,6 +77,7 @@ async function authorize() {
 authorize().then(async auth => {
   var emailIds = await retrieveEmailIds(auth);
   await processEmailIds(auth, emailIds);
+  db.close();
 }).catch(console.error);
 
 async function retrieveEmailIds(auth) {
@@ -119,13 +128,15 @@ async function processEmailIds(auth, emailIds) {
   writeFileSync('./testing.json', JSON.stringify(quoteMails), {
     flag: 'w'
   })
+  await saveToDb(quoteMails);
 }
 
 function getDate(headers) {
   for (let i=0; i<headers.length; i++) {
     if (headers[i].name === "Date") {
       var date = new Date(headers[i].value);
-      return date.toLocaleDateString("en-GB");
+      var strin = date.toISOString();
+      return strin;
     }
   }
 }
@@ -165,4 +176,50 @@ function processQuotes(rawQuotes) {
     }
   })
   return processedQuotes;
+}
+
+async function saveToDb(quotes) {
+  for (var i=0; i < quotes.length; i++) {
+    var receiveDate = quotes[i].receiveDate;
+    // var receiveDate = new Date(quotes[i].receiveDate);
+    console.log(receiveDate);
+    for await (const quote of quotes[i].quotes) {
+      var nameExists = await doesNameExist(quote.name);
+      if (!nameExists) {
+        console.log("INSERTING NAME");
+        await insertName(quote.name);
+      }
+      const nameId = await getNameId(quote.name);
+      await insertQuote(nameId, quote.quote, receiveDate);
+    }
+  }
+}
+
+async function doesNameExist(name) {
+  const result = await db.query(
+    `SELECT * FROM names WHERE name = '${name}';`
+  );
+  console.log("This is if the name exists: ", result);
+  return result.rows.length > 0;
+
+}
+
+async function insertName(name) {
+  return await db.query(
+    `INSERT INTO names (name) VALUES ('${name}');`
+  );
+}
+
+async function getNameId(name) {
+  const result = await db.query(
+    `SELECT id FROM names WHERE name = '${name}';`
+  )
+  console.log("This is get nameId: ", result);
+  return result.rows[0][0];
+}
+
+async function insertQuote(nameId, quote, date) {
+  return await db.query(
+    `INSERT INTO quotes (name_id, quote, receiveDate) VALUES('${nameId}', '${quote}', '${date}')`
+  )
 }
