@@ -9,7 +9,7 @@ CREATE TABLE quotes (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     name_id uuid NOT NULL,
     quote TEXT NOT NULL,
-    receiveDate DATE NOT NULL,
+    receiveDate TIMESTAMP NOT NULL,
     CONSTRAINT fk_name
         FOREIGN KEY(name_id)
             REFERENCES names(id)
