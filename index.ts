@@ -131,7 +131,7 @@ function getDate(headers) {
 
 function getRawQuotes(message) {
   const parts = message.data.payload.parts;
-  const body = Buffer.from(parts[0]['body'].data, 'base64').toString('binary');
+  const body = Buffer.from(parts[0]['body'].data, 'base64').toString('utf8');
   let quotesPart = body.split("Quotes van de Week");
   quotesPart = quotesPart[quotesPart.length -1].split("Heb je (een) betere quote(s)? Stuur hem dan snel naar de")[0].split("\r\n");
   var rawQuotes = [];
