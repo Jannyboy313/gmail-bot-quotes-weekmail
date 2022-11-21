@@ -11,5 +11,3 @@ services:
       POSTGRES_PASSWORD: rootpwd
     ports:
       - "5432:5432"
-    networks:
-      - db-network
