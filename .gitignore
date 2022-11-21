@@ -5,6 +5,9 @@
 credentials.json
 token.json
 
+# Testing
+testing.json
+
 ### Node ###
 # Logs
 logs
